@@ -34,6 +34,11 @@ def main():
     # Default port is 11601
     PORT = sys.argv[1] if len(sys.argv) > 1 else "11601"
 
+    # Only a plain TCP port number is accepted (no shell metacharacters)
+    if not (PORT.isascii() and PORT.isdigit() and 1 <= int(PORT) <= 65535):
+        print(f"{RED}[!] ERROR: invalid port '{PORT}' (use a number from 1 to 65535).{RESET}")
+        sys.exit(1)
+
     print(HACKITA_LOGO)
     
     print_section("CREATING TUN INTERFACES (ligolo1..ligolo10)")
@@ -109,7 +114,7 @@ def main():
 
     # Execute the proxy in the foreground
     try:
-        os.system(f"ligolo-proxy -selfcert -laddr 0.0.0.0:{PORT}")
+        subprocess.run(["ligolo-proxy", "-selfcert", "-laddr", f"0.0.0.0:{PORT}"])
     except KeyboardInterrupt:
         print(f"\n{RED}[!] Interrupted by user.{RESET}")
         sys.exit(0)
